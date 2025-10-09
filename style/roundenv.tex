@@ -1,0 +1,50 @@
+\documentclass{article}
+\usepackage{style/roundenv}
+
+\usepackage{lipsum}
+
+\usepackage{amsmath,amsthm}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\begin{document}
+\section{Demo}
+
+\begin{theorem}[Pythagoras]
+For a right triangle: $a^2+b^2=c^2$.
+\end{theorem}
+
+\begin{lemma}
+This is a lemma boxed with rounded corners.
+\end{lemma}
+
+\RTaddenv{equation}{RTtheorem}
+
+\begin{equation}
+    a+b
+\end{equation}
+
+% 全局样式可随时调整
+\RTsetup{boxrule=5.5pt}
+
+\begin{corollary}
+A corollary with a shadow and no left stripe.
+\lipsum[1-5]
+\end{corollary}
+
+\begin{roundenv} % 用默认 RTtheorem
+123
+\end{roundenv}
+
+\begin{roundenv}[color=RTlemma]
+321
+\end{roundenv}
+
+\begin{roundenv}[color=RTcorollary]
+123
+\end{roundenv}
+
+
+\end{document}

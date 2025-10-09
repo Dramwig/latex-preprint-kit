@@ -1,0 +1,95 @@
+% =========================
+% roundenv.sty (compat-patch)
+% 为 theorem/lemma/equation... 等环境外层加圆角矩形背景
+% by Dramwig [https://github.com/Dramwig]
+% =========================
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{roundenv}[2025/09/01 v2.0 Rounded backgrounds by patching env begin/end]
+
+% --- Requires ---
+\RequirePackage{xparse}
+\RequirePackage{amsthm}
+\RequirePackage{xcolor}
+\RequirePackage{etoolbox}
+\RequirePackage[most]{tcolorbox}
+\tcbuselibrary{skins,breakable}
+
+% -------- Default colors (RGB) --------
+\definecolor{RTtheorem}{RGB}{33,110,177}
+\definecolor{RTlemma}{RGB}{20,140,120}
+\definecolor{RTcorollary}{RGB}{180,110,0}
+\definecolor{RTproposition}{RGB}{130,35,140}
+
+% -------- Global style (user may override via \RTsetup{...}) --------
+\tcbset{
+  RT/base/.style={
+    enhanced,
+    breakable,
+    arc=2mm,
+    boxrule=0.5pt,
+    left=8pt,right=8pt,top=6pt,bottom=6pt,
+    before skip=10pt plus 2pt minus 2pt,
+    after  skip=10pt plus 2pt minus 2pt,
+  },
+  RT/user/.style={},                 % 初始为空
+  RT/common/.style={RT/base,RT/user} % 组合
+}
+
+\pgfkeys{
+  /tcb/RTstyle/.style n args={1}{%
+    RT/common,
+    colframe=#1,
+    colback=#1!5,
+    coltitle=#1!20!black,
+  },
+}
+
+% -------- Patching helper: wrap an amsthm env with tcolorbox --------
+% \RTpatch{<env-name>}{<color-name>}
+\newcommand{\RTpatch}[2]{%
+  \expandafter\ifcsname #1\endcsname
+    \expandafter\pretocmd\csname #1\endcsname{%
+      \begin{tcolorbox}[RTstyle=#2]%
+    }{}{}%
+    \expandafter\apptocmd\csname end#1\endcsname{\end{tcolorbox}}{}{}%
+  \fi
+}
+
+% -------- Apply to common theorem-like envs --------
+\AtBeginDocument{%
+  \RTpatch{theorem}{RTtheorem}%
+  \RTpatch{lemma}{RTlemma}%
+  \RTpatch{corollary}{RTcorollary}%
+  \RTpatch{proposition}{RTproposition}%
+}
+
+% -------- Public utils --------
+% 自定义颜色快捷命令：\RTdefinecolor{RTdefinition}{0,120,200}
+\newcommand{\RTdefinecolor}[2]{%
+  \expandafter\definecolor\csname #1\endcsname{RGB}{#2}%
+}
+% 手动给任意 amsthm 环境加外框：\RTaddenv{definition}{RTdefinition}
+\newcommand{\RTaddenv}[2]{\RTpatch{#1}{#2}}
+% 在原有样式上追加用户的自定义样式
+\newcommand{\RTsetup}[1]{\tcbset{RT/user/.style={#1}}}
+
+
+% keys for roundenv
+\pgfkeys{
+  /roundenv/.is family,
+  /roundenv,
+  color/.initial=RTtheorem, % 默认颜色
+}
+
+% \begin{roundenv}[color=RTlemma] ... \end{roundenv}
+\NewDocumentEnvironment{roundenv}{O{}}
+  {%
+    \begingroup
+    \pgfkeys{/roundenv, #1}%
+    \def\RT@col{\pgfkeysvalueof{/roundenv/color}}%
+    \begin{tcolorbox}[RTstyle=\RT@col]%
+  }
+  {%
+    \end{tcolorbox}%
+    \endgroup
+  }
