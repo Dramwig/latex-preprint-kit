@@ -1,0 +1,58 @@
+% githubverbatim.sty (v2.1, listings-engine fallback)
+% -----------------
+% GitHub 风格 verbatim 代码块环境定义
+% 作者：wangzixi  日期：2025.10.15
+% -----------------
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{githubverbatim}[2025/10/15 v2.1 GitHub-style code block (listings engine)]
+
+\RequirePackage{xcolor}
+\RequirePackage{tcolorbox}
+\tcbuselibrary{skins,breakable,listings} % 不使用 verbatim 库，避免不兼容
+\RequirePackage{listings}
+
+% 颜色 —— GitHub 淡灰
+\definecolor{ghback}{HTML}{F6F8FA}
+\definecolor{ghframe}{HTML}{D0D7DE}
+\definecolor{ghinline}{HTML}{EAECEF} % 比 #F6F8FA 略深一点，适合小块背景
+\definecolor{ghtext}{HTML}{24292E}   % GitHub 默认正文文字色
+
+% 定义一个 listings 风格，尽量拟合 GitHub 观感
+\lstdefinestyle{ghverb}{
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{ghback},
+  showstringspaces=false,
+  breaklines=true,
+  breakatwhitespace=false,
+  columns=fullflexible,   % 更好的等宽字对齐
+  keepspaces=true,        % 保留缩进空格
+  tabsize=2,
+  % 可按需加：numbers=left, numberstyle=\tiny, numbersep=6pt,
+}
+
+% tcolorbox + listings 封装为环境 ghverbatim
+\newtcblisting{ghlistings}{
+  listing engine=listings,
+  listing only,
+  enhanced, breakable,
+  colback=ghback, colframe=ghframe,
+  boxrule=0.5pt, arc=2pt,
+  left=6pt, right=6pt, top=6pt, bottom=6pt,
+  listing options={style=ghverb},
+}
+
+% 行内小代码块
+\newtcbox{\ghcode}[1][]{%
+  on line,                            % 允许行内使用
+  arc=2pt,                            % 圆角半径
+  colback=ghinline,                   % 背景色
+  colframe=ghinline,                  % 边框色与背景一致
+  boxrule=0pt,                        % 去掉明显边框线
+  left=2pt, right=2pt, top=1pt, bottom=1pt, % 内边距
+  boxsep=0pt,
+  nobeforeafter,
+  tcbox raise base,                   % 与基线对齐
+  fontupper=\ttfamily\small\color{ghtext}, % 等宽字体 + 字体色
+  #1                                  % 可允许外部传入附加参数
+}
+\endinput
